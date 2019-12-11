@@ -278,7 +278,7 @@ def test_load_dns_api_module_extra_data(tmpdir):
     }
     dnsapi_extra_file = "%s/dnsapi_extra_data.yml" % str(tmpdir)
     with open(dnsapi_extra_file, "w") as file:
-        yaml.safe_dump(valid_file_contents, file)
+        yaml.safe_dump(valid_file_data, file)
 
     assert genkeys_module.load_dns_api_module_extra_data(dnsapi_extra_file)
     assert genkeys_module.dns_api_extra == valid_file_data
