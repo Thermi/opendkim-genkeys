@@ -3,6 +3,8 @@ import pytest
 import subprocess
 import sys
 
+import yaml
+
 sys.path.append("%s/../src" % os.path.dirname(__file__))
 
 import genkeys
@@ -256,5 +258,47 @@ def test_find_dns_api_modules(tmpdir):
         found.append(module)
     assert to_find.sort() == found.sort()
 
-def test_load_dns_api_module_extra_data():
-    pass
+def test_load_dns_api_module_extra_data(tmpdir):
+    genkeys_module = genkeys.Genkeys()
+    valid_file_contents = """
+    - test1
+      a: b
+      c: d
+    - test2
+      ab123: 456
+    """
+    valid_file_data = {
+        "test1" : {
+            "a" : "b",
+            "c" : "d"
+        },
+        "test2" : {
+            "ab123" : "456"
+        }
+    }
+    dnsapi_extra_file = "%s/dnsapi_extra_data.yml" % str(tmpdir)
+    with open(dnsapi_extra_file, "w") as file:
+        yaml.safe_dump(valid_file_contents, file)
+
+    assert genkeys_module.load_dns_api_module_extra_data(dnsapi_extra_file)
+    assert genkeys_module.dns_api_extra == valid_file_data
+
+def test_save_dns_api_module_extra_data(tmpdir):
+    genkeys_module = genkeys.Genkeys()
+    valid_file_data = {
+        "test1" : {
+            "a" : "b",
+            "c" : "d"
+        },
+        "test2" : {
+            "ab123" : "456"
+        }
+    }
+    dnsapi_extra_file = "%s/dnsapi_extra_data.yml" % str(tmpdir)
+    genkeys_module.dns_api_extra = valid_file_data
+    genkeys_module.save_dns_api_module_extra_data(dnsapi_extra_file)
+    new_file_data = yaml.safe_load(open(dnsapi_extra_file, "r"))
+    assert new_file_data == valid_file_data
+
+    assert genkeys_module.load_dns_api_module_extra_data(dnsapi_extra_file)
+    assert genkeys_module.dns_api_extra == valid_file_data
